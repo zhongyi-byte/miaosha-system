@@ -57,7 +57,7 @@ public static void main(String[] args){
 
     //数据源配置
     DataSourceConfig dsc = new DataSourceConfig();
-    dsc.setUrl("jdbc:mysql://localhost:3306/vueblog-mine?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=UTC");
+    dsc.setUrl("jdbc:mysql://localhost:3306/miaosha?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=UTC");
     dsc.setDriverName("com.mysql.cj.jdbc.Driver");
     dsc.setUsername("root");
     dsc.setPassword("zy864134234");
@@ -66,7 +66,7 @@ public static void main(String[] args){
     //包配置
     PackageConfig pc = new PackageConfig();
     pc.setModuleName(null);
-    pc.setParent("com.zhongyi");
+    pc.setParent("com.zhongyi.seckill");
     mpg.setPackageInfo(pc);
 
     //自定义配置    
