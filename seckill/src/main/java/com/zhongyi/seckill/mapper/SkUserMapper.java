@@ -1,6 +1,6 @@
 package com.zhongyi.seckill.mapper;
 
-import com.zhongyi.seckill.entity.SeckillOrder;
+import com.zhongyi.seckill.entity.SkUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author zhongyi
- * @since 2021-03-19
+ * @since 2021-03-20
  */
-public interface SeckillOrderMapper extends BaseMapper<SeckillOrder> {
+public interface SkUserMapper extends BaseMapper<SkUser> {
 
 }

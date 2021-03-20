@@ -1,7 +1,5 @@
 package com.zhongyi.seckill.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.time.LocalDateTime;
 import java.io.Serializable;
 import lombok.Data;
@@ -14,27 +12,27 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author zhongyi
- * @since 2021-03-19
+ * @since 2021-03-20
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-public class User implements Serializable {
+public class SkUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
-
     /**
-     * 名称
+     * 用户id
      */
-    private String userName;
-
-    private String phone;
+    private Long id;
 
     /**
-     * MD5(MD5(pass明文+固定salt)+salt)
+     * 昵称
+     */
+    private String nickname;
+
+    /**
+     * MD5(MD5(pass明文+固定salt)+salt
      */
     private String password;
 
@@ -44,14 +42,9 @@ public class User implements Serializable {
     private String salt;
 
     /**
-     * 头像
+     * 头像，云存储的ID
      */
     private String head;
-
-    /**
-     * 登录次数
-     */
-    private Integer loginCount;
 
     /**
      * 注册时间
@@ -59,9 +52,14 @@ public class User implements Serializable {
     private LocalDateTime registerDate;
 
     /**
-     * 最后一次登录时间
+     * 上次登录时间
      */
     private LocalDateTime lastLoginDate;
+
+    /**
+     * 登录次数
+     */
+    private Integer loginCount;
 
 
 }
