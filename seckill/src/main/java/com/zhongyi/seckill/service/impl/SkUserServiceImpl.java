@@ -35,9 +35,9 @@ public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> impleme
             throw new GlobalException(CodeMsg.SERVER_ERROR);
         }
         String mobile = loginVo.getMobile();
-        if(!MobileValidator.isMobile(mobile)){
-            throw new GlobalException(CodeMsg.MOBILE_ERROR);
-        }
+        // if(!MobileValidator.isMobile(mobile)){
+        //     throw new GlobalException(CodeMsg.MOBILE_ERROR);
+        // }
         String formPass = loginVo.getPassword();
         //判断手机号是否存在
         SkUser user = userMapper.selectById(mobile);

@@ -1,6 +1,7 @@
 package com.zhongyi.seckill.controller;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import com.zhongyi.seckill.result.Result;
 import com.zhongyi.seckill.service.SkUserService;
@@ -30,7 +31,7 @@ public class LoginController {
 
     @RequestMapping("/doLogin")
     @ResponseBody
-    public Result<String> doLogin(HttpServletResponse response, LoginVo loginVo) {//加入JSR303参数校验
+    public Result<String> doLogin(HttpServletResponse response,@Valid LoginVo loginVo) {//加入JSR303参数校验
         log.info(loginVo.toString());
         String token = userService.doLogin(response, loginVo);
         return Result.success(token);
