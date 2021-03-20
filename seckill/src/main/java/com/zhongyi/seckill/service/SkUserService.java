@@ -3,6 +3,7 @@ package com.zhongyi.seckill.service;
 import com.zhongyi.seckill.entity.SkUser;
 import com.zhongyi.seckill.vo.LoginVo;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -17,7 +18,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface SkUserService extends IService<SkUser> {
 
-    String doLogin(HttpServletResponse response,LoginVo loginVo);
+    String doLogin(HttpServletResponse response,HttpServletRequest request,LoginVo loginVo);
 
 
 }

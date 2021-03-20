@@ -5,10 +5,15 @@ import com.zhongyi.seckill.exception.GlobalException;
 import com.zhongyi.seckill.mapper.SkUserMapper;
 import com.zhongyi.seckill.result.CodeMsg;
 import com.zhongyi.seckill.service.SkUserService;
+import com.zhongyi.seckill.utils.CookieUtils;
 import com.zhongyi.seckill.utils.MD5Util;
 import com.zhongyi.seckill.utils.MobileValidator;
+import com.zhongyi.seckill.utils.UUIDUtil;
 import com.zhongyi.seckill.vo.LoginVo;
 
+import java.util.UUID;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -30,7 +35,7 @@ public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> impleme
     @Autowired
     SkUserMapper userMapper;
 
-    public String doLogin(HttpServletResponse response, LoginVo loginVo) {
+    public String doLogin(HttpServletResponse response,HttpServletRequest request,LoginVo loginVo) {
         if (loginVo == null) {
             throw new GlobalException(CodeMsg.SERVER_ERROR);
         }
@@ -51,7 +56,10 @@ public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> impleme
         if (!calcPass.equals(dbPass)) {
             throw new GlobalException(CodeMsg.PASSWORD_ERROR);
         }
-
+        //设置cookie
+        String ticket = UUIDUtil.uuid();
+        request.getSession().setAttribute(ticket, user);
+        CookieUtils.setCookie(request, response, "userTicket", ticket);
         return "12312";
         //生成唯一id作为token
         // String token = UUIDUtil.uuid();

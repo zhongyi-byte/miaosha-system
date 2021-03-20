@@ -1,5 +1,6 @@
 package com.zhongyi.seckill.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -28,12 +29,14 @@ public class LoginController {
     public String toLogin() {
         return "login";
     }
+    
 
+    //跳转商品列表页
     @RequestMapping("/doLogin")
     @ResponseBody
-    public Result<String> doLogin(HttpServletResponse response,@Valid LoginVo loginVo) {//加入JSR303参数校验
+    public Result<String> doLogin(HttpServletResponse response,HttpServletRequest request,@Valid LoginVo loginVo) {//加入JSR303参数校验
         log.info(loginVo.toString());
-        String token = userService.doLogin(response, loginVo);
+        String token = userService.doLogin(response,request,loginVo);
         return Result.success(token);
     }
 }
