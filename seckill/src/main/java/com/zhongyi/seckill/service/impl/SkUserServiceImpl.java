@@ -7,18 +7,18 @@ import com.zhongyi.seckill.result.CodeMsg;
 import com.zhongyi.seckill.service.SkUserService;
 import com.zhongyi.seckill.utils.CookieUtils;
 import com.zhongyi.seckill.utils.MD5Util;
-import com.zhongyi.seckill.utils.MobileValidator;
 import com.zhongyi.seckill.utils.UUIDUtil;
 import com.zhongyi.seckill.vo.LoginVo;
-
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import org.apache.catalina.User;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
@@ -34,6 +34,8 @@ public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> impleme
     
     @Autowired
     SkUserMapper userMapper;
+    @Autowired
+    RedisTemplate redisTemplate;
 
     public String doLogin(HttpServletResponse response,HttpServletRequest request,LoginVo loginVo) {
         if (loginVo == null) {
@@ -58,7 +60,9 @@ public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> impleme
         }
         //设置cookie
         String ticket = UUIDUtil.uuid();
-        request.getSession().setAttribute(ticket, user);
+        // request.getSession().setAttribute(ticket, user);
+        //将用户信息存入redis中
+        redisTemplate.opsForValue().set("user:"+ticket, user);
         CookieUtils.setCookie(request, response, "userTicket", ticket);
         return "12312";
         //生成唯一id作为token
@@ -66,4 +70,17 @@ public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> impleme
         // addCookie(response, token, user);
         // return token;
     }
+
+    @Override
+    public SkUser getUserByCookie(String userTicket,HttpServletRequest request,HttpServletResponse response) {
+        if(StringUtils.isEmpty(userTicket)){
+            return null;
+        }
+        SkUser user = (SkUser)redisTemplate.opsForValue().get("user:" + userTicket);
+        if(user != null){
+            CookieUtils.setCookie(request, response,"userTicket",userTicket);
+        }
+        return user;
+    }
+    
 }

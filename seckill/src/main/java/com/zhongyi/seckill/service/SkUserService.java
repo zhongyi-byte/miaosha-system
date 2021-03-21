@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface SkUserService extends IService<SkUser> {
 
     String doLogin(HttpServletResponse response,HttpServletRequest request,LoginVo loginVo);
-
-
+    
+    //根据cookie获取用户 
+    SkUser getUserByCookie(String userTicket,HttpServletRequest request,HttpServletResponse response);
 }
