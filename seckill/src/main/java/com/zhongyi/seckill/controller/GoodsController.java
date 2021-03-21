@@ -21,15 +21,15 @@ public class GoodsController {
     SkUserService userService;
 
     @RequestMapping("/toList")
-    public String toList(HttpServletRequest request,HttpServletResponse response, Model model,@CookieValue(value ="userTicket",required = false) String ticket){
-        if(ticket == null){
-        return "login";
-        }
+    public String toList(Model model,SkUser user){
+        // if(ticket == null){
+        // return "login";
+        // }
 
-        SkUser user = userService.getUserByCookie(ticket, request, response);
-        if(user == null){
-            return "login";
-        }
+        // SkUser user = userService.getUserByCookie(ticket, request, response);
+        // if(user == null){
+        //     return "login";
+        // }
         model.addAttribute("user", user);
         return "goodsList";
     }
