@@ -10,6 +10,9 @@ import com.zhongyi.seckill.utils.MD5Util;
 import com.zhongyi.seckill.utils.UUIDUtil;
 import com.zhongyi.seckill.vo.LoginVo;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -21,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * <p>
  *  服务实现类
@@ -30,12 +35,15 @@ import org.springframework.stereotype.Service;
  * @since 2021-03-20
  */
 @Service
+@Slf4j
 public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> implements SkUserService {
     
     @Autowired
     SkUserMapper userMapper;
     @Autowired
     RedisTemplate redisTemplate;
+    @Autowired
+    SkUserServiceImpl userService;
 
     public String doLogin(HttpServletResponse response,HttpServletRequest request,LoginVo loginVo) {
         if (loginVo == null) {
@@ -58,7 +66,12 @@ public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> impleme
         if (!calcPass.equals(dbPass)) {
             throw new GlobalException(CodeMsg.PASSWORD_ERROR);
         }
+        // user.setLastLoginDate(LocalDateTime.now());
         //设置cookie
+        user.setLoginCount(user.getLoginCount()+1);
+        userService.updateById(user);
+        log.info("loginCount:" + user.getLoginCount());
+        
         String ticket = UUIDUtil.uuid();
         // request.getSession().setAttribute(ticket, user);
         //将用户信息存入redis中

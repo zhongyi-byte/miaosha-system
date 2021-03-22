@@ -1,5 +1,14 @@
 package com.zhongyi.seckill.result;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class CodeMsg {
     private int code;
     private String msg;
@@ -27,29 +36,6 @@ public class CodeMsg {
     public static CodeMsg SECKILL_OVER = new CodeMsg(500500, "商品已经秒杀完毕");
     public static CodeMsg REPEATE_SECKILL = new CodeMsg(500501, "不能重复秒杀");
 
-    private CodeMsg() {
-    }
-
-    private CodeMsg(int code, String msg) {
-        this.code = code;
-        this.msg = msg;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
 
     /**
      * 返回带参数的错误码
@@ -62,8 +48,8 @@ public class CodeMsg {
         return new CodeMsg(code, message);
     }
 
-    @Override
-    public String toString() {
-        return "CodeMsg [code=" + code + ", msg=" + msg + "]";
-    }
+    // @Override
+    // public String toString() {
+    //     return "CodeMsg [code=" + code + ", msg=" + msg + "]";
+    // }
 }
