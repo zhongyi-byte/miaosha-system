@@ -11,9 +11,11 @@ import javax.servlet.http.HttpSession;
 import com.alibaba.druid.pool.ha.selector.StickyRandomDataSourceSelector;
 import com.alibaba.druid.sql.ast.statement.SQLIfStatement.Else;
 import com.zhongyi.seckill.entity.SkUser;
+import com.zhongyi.seckill.result.Result;
 import com.zhongyi.seckill.service.SkGoodsService;
 import com.zhongyi.seckill.service.SkUserService;
 import com.zhongyi.seckill.vo.GoodsVo;
+import com.zhongyi.seckill.vo.goodsDetailVo;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,9 @@ public class GoodsController {
     RedisTemplate redisTemplate;
     @Autowired
     ThymeleafViewResolver thymleafViewResolver;
+
+    //未加入redis缓存时,最大qps约为2000
+    //加入redis后,qps接近9000
 
     @RequestMapping(value = "/toList",produces = "text/html;charset = utf-8")
     // @ResponseBody
@@ -80,8 +85,9 @@ public class GoodsController {
 
     }
 
+
     //跳转商品详情页
-    @RequestMapping(value = "/toDetail/{goodsId}",produces = "text/html;charset = utf-8")
+    @RequestMapping(value = "/toDetail2/{goodsId}",produces = "text/html;charset = utf-8")
     // @ResponseBody
     public String toDetail(Model model,SkUser user,@PathVariable long goodsId,HttpServletRequest request,
     HttpServletResponse response){
@@ -133,5 +139,45 @@ public class GoodsController {
             valueOperations.set("goodsDetail:"+ goodsId, html,60,TimeUnit.SECONDS);
         }
         return html;
+    }
+
+
+
+    @RequestMapping("/toDetail/{goodsId}")
+    @ResponseBody
+    public Result<goodsDetailVo> toDetail(Model model,SkUser user,@PathVariable long goodsId){
+       
+        GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(goodsId);
+
+
+        Date startDate = goodsVo.getStartDate();
+        Date endDate = goodsVo.getEndDate();
+        Date nowDate = new Date();
+        //秒杀倒计时
+        int remainSeconds = 0;
+        //秒杀状态
+        int seckillStatus = 2;
+        //秒杀还未开始
+        if(nowDate.before(startDate)){
+            seckillStatus = 0;
+            remainSeconds = (int)(startDate.getTime() - nowDate.getTime())/1000  ;
+        }
+        else if(nowDate.after(endDate)){
+            //秒杀已经结束
+            seckillStatus = 2;
+            remainSeconds = -1;
+        }
+        else{
+            //秒杀进行中
+            seckillStatus = 1;
+            remainSeconds = 0;
+        }
+
+        goodsDetailVo goodsDetailVo = new goodsDetailVo();
+        goodsDetailVo.setGoods(goodsVo);
+        goodsDetailVo.setUser(user);
+        goodsDetailVo.setSeckillStatus(seckillStatus);
+        goodsDetailVo.setRemainSeconds(remainSeconds);
+        return Result.success(goodsDetailVo);
     }
 }
