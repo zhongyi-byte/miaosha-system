@@ -33,6 +33,8 @@ public class SkOrderInfoServiceImpl extends ServiceImpl<SkOrderInfoMapper, SkOrd
     private SkGoodsSeckillServiceImpl seckillServiceImpl;
 
     @Autowired
+    private SkGoodsServiceImpl goodsServiceImpl;
+    @Autowired
     private SkOrderInfoMapper orderInfoMapper;
     @Autowired
     private SkOrderInfoService orderInfoService;
@@ -43,8 +45,11 @@ public class SkOrderInfoServiceImpl extends ServiceImpl<SkOrderInfoMapper, SkOrd
     @Override
     @Transactional
     public SkOrderInfo seckill(SkUser user, GoodsVo goodsVo) {
-       SkGoodsSeckill skGoods = seckillServiceImpl.getOne(new QueryWrapper<SkGoodsSeckill>().eq("goods_id", goodsVo.getId()));
+       
+        goodsVo.setStockCount(goodsVo.getGoodsStock()-1);
+        goodsServiceImpl.updateById(goodsVo);
         //减少库存
+        SkGoodsSeckill skGoods = seckillServiceImpl.getOne(new QueryWrapper<SkGoodsSeckill>().eq("goods_id", goodsVo.getId()));
         skGoods.setStockCount(skGoods.getStockCount()-1);
         seckillServiceImpl.updateById(skGoods);
 

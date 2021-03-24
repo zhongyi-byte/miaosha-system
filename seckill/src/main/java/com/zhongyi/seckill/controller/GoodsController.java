@@ -2,33 +2,50 @@ package com.zhongyi.seckill.controller;
 
 
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.alibaba.druid.pool.ha.selector.StickyRandomDataSourceSelector;
 import com.alibaba.druid.sql.ast.statement.SQLIfStatement.Else;
 import com.zhongyi.seckill.entity.SkUser;
 import com.zhongyi.seckill.service.SkGoodsService;
 import com.zhongyi.seckill.service.SkUserService;
 import com.zhongyi.seckill.vo.GoodsVo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
-@Controller
+
+@RestController
 @RequestMapping("/goods")
 public class GoodsController {
     @Autowired
     SkUserService userService;
     @Autowired
     SkGoodsService goodsService;
-    @RequestMapping("/toList")
-    public String toList(Model model,SkUser user){
+    @Autowired
+    RedisTemplate redisTemplate;
+    @Autowired
+    ThymeleafViewResolver thymleafViewResolver;
+
+    @RequestMapping(value = "/toList",produces = "text/html;charset = utf-8")
+    // @ResponseBody
+    public String toList(Model model,SkUser user,HttpServletRequest request,HttpServletResponse response){
         // if(user == null){
         //     return "login";
         // }
@@ -40,17 +57,43 @@ public class GoodsController {
         // if(user == null){
         //     return "login";
         // }
+        
+        //Redis 中获取页面,如果为不为空,直接返回页面
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        String html = (String)valueOperations.get("goods_List");
+        if(!StringUtils.isEmpty(html)){
+            return html;
+        }
+
+        //如果为空,手动渲染,存入redis并返回
+
         model.addAttribute("user", user);
         model.addAttribute("goodsList", goodsService.findGoodsVo());
-        return "goodsList";
+
+        WebContext webContext = new WebContext(request, response, request.getServletContext(),request.getLocale(),
+        model.asMap());
+        html = thymleafViewResolver.getTemplateEngine().process("goodsList", webContext);
+        if(!StringUtils.isEmpty(html)){
+            valueOperations.set("goods_List", html,60,TimeUnit.SECONDS);
+        }
+        return html;
+
     }
 
     //跳转商品详情页
-    @RequestMapping("/toDetail/{goodsId}")
-    public String toDetail(Model model,SkUser user,@PathVariable long goodsId){
+    @RequestMapping(value = "/toDetail/{goodsId}",produces = "text/html;charset = utf-8")
+    // @ResponseBody
+    public String toDetail(Model model,SkUser user,@PathVariable long goodsId,HttpServletRequest request,
+    HttpServletResponse response){
         if(user == null){
             return "login";
         }
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        String html = (String)valueOperations.get("goodsDetail:" + goodsId);
+        if(!StringUtils.isEmpty(html)){
+            return html;
+        }
+
 
         model.addAttribute("user", user);
         model.addAttribute("goods", goodsService.findGoodsVoByGoodsId(goodsId));
@@ -82,6 +125,13 @@ public class GoodsController {
         model.addAttribute("remainSeconds", remainSeconds);
         model.addAttribute("seckillStatus", seckillStatus);
         model.addAttribute("nowDate", nowDate);
-        return "goodsDetail";
+
+        WebContext webContext = new WebContext(request, response, request.getServletContext(),request.getLocale(),
+        model.asMap());
+        html = thymleafViewResolver.getTemplateEngine().process("goodsDetail", webContext);
+        if(!StringUtils.isEmpty(html)){
+            valueOperations.set("goodsDetail:"+ goodsId, html,60,TimeUnit.SECONDS);
+        }
+        return html;
     }
 }

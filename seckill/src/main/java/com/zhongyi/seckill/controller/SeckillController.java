@@ -1,6 +1,7 @@
 package com.zhongyi.seckill.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.zhongyi.seckill.entity.SkGoodsSeckill;
 import com.zhongyi.seckill.entity.SkOrder;
 import com.zhongyi.seckill.entity.SkOrderInfo;
 import com.zhongyi.seckill.entity.SkUser;
@@ -8,6 +9,7 @@ import com.zhongyi.seckill.exception.GlobalException;
 import com.zhongyi.seckill.exception.GlobalExceptionHandler;
 import com.zhongyi.seckill.result.CodeMsg;
 import com.zhongyi.seckill.result.Result;
+import com.zhongyi.seckill.service.SkGoodsSeckillService;
 import com.zhongyi.seckill.service.SkGoodsService;
 import com.zhongyi.seckill.service.SkOrderInfoService;
 import com.zhongyi.seckill.service.SkOrderService;
@@ -35,6 +37,9 @@ public class SeckillController {
     @Autowired
     SkOrderInfoService orderService;
 
+    @Autowired
+    SkGoodsSeckillService skGoodsService;
+
     @RequestMapping("/doSeckill")
     public String doSeckill(Model model,SkUser user,@RequestParam("goodsId") long goodsId){
         if(user == null){
@@ -60,6 +65,8 @@ public class SeckillController {
         SkOrderInfo orderInfo = orderService.seckill(user,goodsVo);
         model.addAttribute("orderInfo", orderInfo);
         model.addAttribute("goods", goodsVo);
+        SkGoodsSeckill skGoods = skGoodsService.getOne(new QueryWrapper<SkGoodsSeckill>().eq("goods_id", goodsVo.getId()));
+        log.info("SeckillGoodsPrice:" + skGoods.getSeckillPrice());
         log.info("GoodsPrice:" + goodsVo.getGoodsPrice());
         return "orderDetail";
     }
