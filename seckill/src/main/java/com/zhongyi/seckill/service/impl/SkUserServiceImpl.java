@@ -77,7 +77,7 @@ public class SkUserServiceImpl extends ServiceImpl<SkUserMapper, SkUser> impleme
         //将用户信息存入redis中
         redisTemplate.opsForValue().set("user:"+ticket, user);
         CookieUtils.setCookie(request, response, "userTicket", ticket);
-        return "12312";
+        return ticket;
         //生成唯一id作为token
         // String token = UUIDUtil.uuid();
         // addCookie(response, token, user);
